@@ -3,7 +3,7 @@
 ## Install
 
 ```
-$ go get github.com/innotechdev/pq-driver
+$ go get github.com/innotechdevops/pq-driver
 ```
 
 ## How to use
