@@ -1,4 +1,4 @@
-module github.com/innotechdev/pq-driver
+module github.com/innotechdevops/pq-driver
 
 go 1.15
 
