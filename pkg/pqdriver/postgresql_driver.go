@@ -48,7 +48,7 @@ func (db *postgresDB) Connect() *sqlx.DB {
 }
 
 // New for create PostgresSQL driver
-func New(config Config) driver.PostgreSQLDriver {
+func New(config Config) PostgreSQLDriver {
 	return &postgresDB{
 		Conf: config,
 	}
