@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -29,6 +31,9 @@ type Config struct {
 	DatabaseName string
 	Port         string
 	SSLMode      string
+	MaxLifetime  string
+	MaxIdleConns string
+	MaxOpenConns string
 }
 
 type postgresDB struct {
@@ -39,6 +44,16 @@ func (db *postgresDB) Connect() *sqlx.DB {
 	dsName := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		db.Conf.Host, db.Conf.Port, db.Conf.User, db.Conf.Pass, db.Conf.DatabaseName, db.Conf.SSLMode)
 	conn, err := sqlx.Connect("postgres", dsName)
+	maxOpenConns, _ := strconv.Atoi(db.Conf.MaxOpenConns)
+	maxIdleConns, _ := strconv.Atoi(db.Conf.MaxIdleConns)
+	maxLifetime, _ := strconv.Atoi(db.Conf.MaxLifetime)
+	if maxOpenConns > 0 {
+		conn.SetMaxOpenConns(maxOpenConns) // The default is 0 (unlimited), ex: 1000
+	}
+	if maxIdleConns > 0 {
+		conn.SetMaxIdleConns(maxIdleConns) // defaultMaxIdleConns = 2, ex: 10
+	}
+	conn.SetConnMaxLifetime(time.Duration(maxLifetime)) // 0, Connections are reused forever
 	if err != nil {
 		log.Fatalln(err)
 	} else {
@@ -63,5 +78,8 @@ func ConfigEnv() Config {
 		DatabaseName: os.Getenv("POSTGRES_DATABASE"),
 		Port:         os.Getenv("POSTGRES_PORT"),
 		SSLMode:      os.Getenv("POSTGRES_SSL_MODE"),
+		MaxLifetime:  os.Getenv("MARIA_MAX_LIFETIME"),
+		MaxIdleConns: os.Getenv("MARIA_MAX_IDLE_CONNS"),
+		MaxOpenConns: os.Getenv("MARIA_MAX_OPEN_CONNS"),
 	}
 }
