@@ -24,8 +24,8 @@ driver := pqdriver.New(pqdriver.Config{
     DatabaseName: os.Getenv("POSTGRES_DATABASE"),
     Port:         pqdriver.DefaultPort,
     SSLMode:      pqdriver.SSLModeDisable,
-    MaxLifetime:  os.Getenv("MARIA_MAX_LIFETIME"),
-    MaxIdleConns: os.Getenv("MARIA_MAX_IDLE_CONNS"),
-    MaxOpenConns: os.Getenv("MARIA_MAX_OPEN_CONNS"),
+    MaxLifetime:  os.Getenv("POSTGRES_MAX_LIFETIME"),
+    MaxIdleConns: os.Getenv("POSTGRES_MAX_IDLE_CONNS"),
+    MaxOpenConns: os.Getenv("POSTGRES_MAX_OPEN_CONNS"),
 })
 ```
