@@ -41,6 +41,9 @@ type postgresDB struct {
 }
 
 func (db *postgresDB) Connect() *sqlx.DB {
+	if db.Conf.SSLMode == "" {
+		db.Conf.SSLMode = SSLModeDisable
+	}
 	dsName := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		db.Conf.Host, db.Conf.Port, db.Conf.User, db.Conf.Pass, db.Conf.DatabaseName, db.Conf.SSLMode)
 	conn, err := sqlx.Connect("postgres", dsName)
@@ -51,9 +54,9 @@ func (db *postgresDB) Connect() *sqlx.DB {
 		conn.SetMaxOpenConns(maxOpenConns) // The default is 0 (unlimited), ex: 1000
 	}
 	if maxIdleConns > 0 {
-		conn.SetMaxIdleConns(maxIdleConns) // defaultMaxIdleConns = 2, ex: 10
+		conn.SetMaxIdleConns(maxIdleConns) // The default maxIdleConns = 2, ex: 10
 	}
-	conn.SetConnMaxLifetime(time.Duration(maxLifetime)) // 0, Connections are reused forever
+	conn.SetConnMaxLifetime(time.Duration(maxLifetime)) // MaxLifetime = 0, Connections are reused forever
 	if err != nil {
 		log.Fatalln(err)
 	} else {
@@ -77,9 +80,13 @@ func ConfigEnv() Config {
 		Host:         os.Getenv("POSTGRES_HOST"),
 		DatabaseName: os.Getenv("POSTGRES_DATABASE"),
 		Port:         os.Getenv("POSTGRES_PORT"),
-		SSLMode:      os.Getenv("POSTGRES_SSL_MODE"),
-		MaxLifetime:  os.Getenv("MARIA_MAX_LIFETIME"),
-		MaxIdleConns: os.Getenv("MARIA_MAX_IDLE_CONNS"),
-		MaxOpenConns: os.Getenv("MARIA_MAX_OPEN_CONNS"),
+		// The default SSL mode is "disable", ex: "verify-full"
+		SSLMode: os.Getenv("POSTGRES_SSL_MODE"),
+		// The default maxLifetime = 0, Connections are reused forever, ex: "60"
+		MaxLifetime: os.Getenv("POSTGRES_MAX_LIFETIME"),
+		// The default maxIdleConns = 2, ex: 10
+		MaxIdleConns: os.Getenv("POSTGRES_MAX_IDLE_CONNS"),
+		// The default is 0 (unlimited), ex: 1000
+		MaxOpenConns: os.Getenv("POSTGRES_MAX_OPEN_CONNS"),
 	}
 }
